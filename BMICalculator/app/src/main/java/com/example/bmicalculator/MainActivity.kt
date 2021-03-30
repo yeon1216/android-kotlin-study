@@ -1,5 +1,6 @@
 package com.example.bmicalculator
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -21,8 +22,18 @@ class MainActivity : AppCompatActivity() {
                 // return에 @setOnClickListener가 붙는 이유 : onCreate()의 return인지 setOnClickListener()의 return인지 알려주기 위해
                 return@setOnClickListener
             }
-        }
 
+            val height: Int = heightEt.text.toString().toInt()
+            val weight: Int = weightEt.text.toString().toInt()
+
+            val intent = Intent(this@MainActivity, ResultActivity::class.java)
+
+            intent.putExtra("height", height)
+            intent.putExtra("weight", weight)
+
+            startActivity(intent)
+
+        }
 
     }
 }
