@@ -87,10 +87,3 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
-
-
-#/cameraFiLive/CameraFiKey.keystore
-
-# translation
-#/translation/output/
-#/translation/json/
