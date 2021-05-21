@@ -12,6 +12,7 @@ import androidx.core.widget.addTextChangedListener
 
 class DiaryActivity : AppCompatActivity() {
 
+    // Handler : 
     private val handler = Handler(Looper.getMainLooper())
 
     private val diaryEditText: EditText by lazy {
