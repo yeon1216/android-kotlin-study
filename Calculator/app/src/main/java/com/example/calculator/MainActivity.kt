@@ -5,11 +5,15 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.room.Room
 import com.example.calculator.data.AppDatabase
+import com.example.calculator.data.model.History
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,6 +41,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // TODO : Room DB 초기화 스터디
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "historyDB"
+        ).build()
     }
 
     fun buttonClicked(view: View) {
@@ -149,10 +160,54 @@ class MainActivity : AppCompatActivity() {
         hasOperator = false
     }
 
-    fun historyButtonClicked(view: View) {}
-    fun resultButtonClicked(view: View) {}
-    fun historyClearButtonClicked(view: View) {}
-    fun closeHistoryButtonClicked(view: View) {}
+    fun historyButtonClicked(view: View) {
+        historyLayout.isVisible = true
+        historyLinearLayout.removeAllViews()
+        Thread(Runnable {
+            // TODO : reversed() 함수 스터디
+            db.historyDao().getAll().reversed().forEach {
+                runOnUiThread {
+                    val historyView =
+                        LayoutInflater
+                            .from(applicationContext)
+                            .inflate(R.layout.history_row,null,false)
+                    historyView.findViewById<TextView>(R.id.expressionTextView).text = it.expression
+                    historyView.findViewById<TextView>(R.id.resultTextView).text = "=${it.result}"
+                    historyLinearLayout.addView(historyView)
+                }
+            }
+        }).start()
+    }
+    fun resultButtonClicked(view: View) {
+        val expressionTexts = expressionTextView.text.split(" ")
+        if(expressionTextView.text.isEmpty() || expressionTexts.size == 1) return
+        if(expressionTexts.size != 3 && hasOperator) {
+            Toast.makeText(applicationContext,"아직 완성되지 않은 수식입니다.",Toast.LENGTH_SHORT).show()
+            return
+        }
+        if(expressionTexts[0].isNumber().not() || expressionTexts[2].isNumber().not()) {
+            Toast.makeText(applicationContext,"오류가 발생했습니다.",Toast.LENGTH_SHORT).show()
+            return
+        }
+        val expressionText = expressionTextView.text.toString()
+        val resultText = calculateExpression()
+        Thread(Runnable {
+            db.historyDao().insertHistory(History(null,expressionText,resultText))
+        }).start()
+        resultTextView.text = ""
+        expressionTextView.text = resultText
+        isOperator = false
+        hasOperator = false
+    }
+    fun historyClearButtonClicked(view: View) {
+        historyLinearLayout.removeAllViews()
+        Thread(Runnable {
+            db.historyDao().deleteAll()
+        }).start()
+    }
+    fun closeHistoryButtonClicked(view: View) {
+        historyLayout.isVisible = false
+    }
 }
 
 fun String.isNumber(): Boolean {
