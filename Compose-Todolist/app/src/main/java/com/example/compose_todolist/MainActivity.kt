@@ -1,20 +1,24 @@
 package com.example.compose_todolist
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.compose_todolist.ui.theme.ComposeTodolistTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.compose_todolist.domain.util.TodoAndroidViewModelFactory
+import com.example.compose_todolist.ui.main.MainScreen
+import com.example.compose_todolist.ui.main.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
+            Log.d ("YEON", "MainActivity ::: create 1")
+            val mainViewModel: MainViewModel = viewModel(
+                factory = TodoAndroidViewModelFactory(application)
+            )
+            Log.d ("YEON", "MainActivity ::: create 2")
+            MainScreen(viewModel = mainViewModel)
         }
     }
 }
