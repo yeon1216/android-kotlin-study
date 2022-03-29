@@ -24,6 +24,7 @@ import java.util.*
 fun TodoItem(
     todo: Todo,
     onClick: (todo: Int) -> Unit = {},
+    onLongClick: (todoId: Int) -> Unit = {},
     onDeleteClick: (id: Int) -> Unit = {},
 ) {
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -75,14 +76,14 @@ fun TodoItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TodoItemTruePreview() {
-    TodoItem(todo = Todo("숙제", Date().time, true))
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TodoItemFalsePreview() {
-    TodoItem(todo = Todo("숙제", Date().time, false))
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TodoItemTruePreview() {
+//    TodoItem(todo = Todo("숙제", Date().time, true))
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun TodoItemFalsePreview() {
+//    TodoItem(todo = Todo("숙제", Date().time, false))
+//}
