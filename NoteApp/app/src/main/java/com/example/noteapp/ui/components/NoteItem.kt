@@ -11,6 +11,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.util.DEVLogger
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +25,9 @@ fun NoteItem(
     Column(
         Modifier
             .padding(8.dp)
-            .clickable { }
+            .clickable {
+                DEVLogger.d("note   id : ${note.uid}, title : ${note.title}, content : ${note.content}")
+            }
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically
