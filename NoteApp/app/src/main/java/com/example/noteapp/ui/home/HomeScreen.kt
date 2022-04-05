@@ -1,5 +1,6 @@
 package com.example.noteapp.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,7 +18,9 @@ import com.example.noteapp.view_model.MainViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    onClickFloatingBtn: () -> Unit,
+    onClickItem: (noteId: Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -28,7 +31,7 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    DEVLogger.d("click floating btn")
+                    onClickFloatingBtn()
                 }
             ) {
                 Icon(
@@ -52,10 +55,15 @@ fun HomeScreen(
             ) {
                 items(viewModel.notes.value) { item ->
 
-                    Column {
+                    Column(
+                        Modifier.clickable {
+                            onClickItem(item.uid)
+                        }
+                    ) {
                         NoteItem(note = item)
                         Spacer(modifier = Modifier.height(16.dp))
                         Divider(color = Color.Black, thickness = 1.dp)
+
                     }
 
                 }

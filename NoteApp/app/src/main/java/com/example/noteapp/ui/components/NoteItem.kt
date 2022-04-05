@@ -25,9 +25,7 @@ fun NoteItem(
     Column(
         Modifier
             .padding(8.dp)
-            .clickable {
-                DEVLogger.d("note   id : ${note.uid}, title : ${note.title}, content : ${note.content}")
-            }
+
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically
