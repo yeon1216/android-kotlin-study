@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.Flow
 interface NoteDao {
 
     @Query("SELECT * FROM Note ORDER BY date DESC")
-    fun notes(): Flow<List<Note>>
+    fun observeNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM Note ORDER BY date DESC")
+    fun notes(): List<Note>
 
     @Query("SELECT * FROM Note Where uid = :uid")
     suspend fun get(uid: Int): Note

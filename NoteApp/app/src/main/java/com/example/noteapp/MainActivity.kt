@@ -5,6 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,9 +19,10 @@ import com.example.noteapp.ui.detail.DetailScreen
 import com.example.noteapp.ui.home.HomeScreen
 import com.example.noteapp.ui.theme.NoteAppTheme
 import com.example.noteapp.ui.write.WriteScreen
-import com.example.noteapp.util.DEVLogger
 import com.example.noteapp.util.InjectorUtils
+import com.example.noteapp.view_model.MainUiState
 import com.example.noteapp.view_model.MainViewModel
+import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +32,10 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = viewModel(
                 factory = InjectorUtils.providerNoteViewModelFactory(application)
             )
+            val mainUiState: MainUiState by viewModel.uiState.collectAsState()
 
             val navController = rememberNavController()
+            val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
             NoteAppTheme {
                 // A surface container using the 'background' color from the theme
@@ -37,13 +44,11 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "home") {
                         composable(route = "home") {
                             HomeScreen(
-                                viewModel = viewModel,
+                                uiState = mainUiState,
                                 onClickFloatingBtn = {
                                     navController.navigate("write")
                                 },
                                 onClickItem = { noteId ->
-                                    DEVLogger.d("onClickItem $noteId")
-
                                     navController.navigate("detail?noteId=$noteId")
                                 }
                             )
@@ -51,17 +56,18 @@ class MainActivity : ComponentActivity() {
                         composable(route = "write") {
                             WriteScreen()
                         }
-                        composable(route = "detail?noteId={noteId}",
-                        arguments = listOf(
+                        composable(
+                            route = "detail?noteId={noteId}",
+                            arguments = listOf(
                             navArgument("noteId") {
                                 type = NavType.IntType
                             }
                         )) { backStackEntry ->
-                            var noteId = backStackEntry.arguments?.getInt("noteId") ?: 0
+                            val noteId = backStackEntry.arguments?.getInt("noteId") ?: 0
                             if(noteId == 0) {
                                 navController.navigateUp()
                             } else {
-                                DetailScreen(viewModel = viewModel, noteId = noteId)
+                                DetailScreen(viewModel = viewModel, coroutineScope = coroutineScope, noteId = noteId)
                             }
                         }
                     }

@@ -11,11 +11,15 @@ import kotlinx.coroutines.flow.Flow
 class NoteRepositoryImpl(private val noteDao: NoteDao): NoteRepository {
 
     override fun observeNotes(): Flow<List<Note>> {
-        return noteDao.notes()
+        return noteDao.observeNotes()
     }
 
     override suspend fun get(uid: Int): Note {
         return noteDao.get(uid)
+    }
+
+    override suspend fun getAll(): List<Note> {
+        return noteDao.notes()
     }
 
     override suspend fun insert(note: Note) {

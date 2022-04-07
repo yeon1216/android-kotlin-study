@@ -12,16 +12,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.ui.components.NoteItem
-import com.example.noteapp.util.DEVLogger
-import com.example.noteapp.view_model.MainViewModel
+import com.example.noteapp.view_model.MainUiState
 
 @Composable
 fun HomeScreen(
-    viewModel: MainViewModel,
+    uiState: MainUiState,
     onClickFloatingBtn: () -> Unit,
     onClickItem: (noteId: Int) -> Unit
 ) {
+
+    val notes: List<Note> = when(uiState) {
+        is MainUiState.HasNotes -> uiState.notes.allNotes
+        is MainUiState.NoNotes -> emptyList()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -53,7 +59,7 @@ fun HomeScreen(
                 contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp),   // 상하 좌우 패딩
                 verticalArrangement = Arrangement.spacedBy(16.dp),  // 아이템간의 패딩
             ) {
-                items(viewModel.notes.value) { item ->
+                items(notes) { item ->
 
                     Column(
                         Modifier.clickable {

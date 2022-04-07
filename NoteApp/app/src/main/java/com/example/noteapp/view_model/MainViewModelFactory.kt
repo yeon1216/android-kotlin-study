@@ -1,11 +1,10 @@
-package com.example.noteapp.domain.util
+package com.example.noteapp.view_model
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.noteapp.domain.repository.NoteRepository
-import com.example.noteapp.view_model.MainViewModel
 import java.lang.IllegalArgumentException
 
 class MainViewModelFactory(
