@@ -1,12 +1,13 @@
 package com.example.noteapp.data.respository
 
-import android.app.Application
-import androidx.room.Room
 import com.example.noteapp.data.data_source.NoteDao
-import com.example.noteapp.data.data_source.NoteDatabase
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.repository.NoteRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.lang.Exception
+import com.example.noteapp.data.Result
 
 class NoteRepositoryImpl(private val noteDao: NoteDao): NoteRepository {
 
@@ -18,8 +19,15 @@ class NoteRepositoryImpl(private val noteDao: NoteDao): NoteRepository {
         return noteDao.get(uid)
     }
 
-    override suspend fun getAll(): List<Note> {
-        return noteDao.notes()
+    override suspend fun getAll(): Result<List<Note>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val notes = noteDao.getAll()
+                Result.Success(notes)
+            } catch (e: Exception) {
+                Result.Error(e)
+            }
+        }
     }
 
     override suspend fun insert(note: Note) {

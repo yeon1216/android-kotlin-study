@@ -1,19 +1,18 @@
 package com.example.noteapp.view_model
 
 import android.app.Application
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.noteapp.data.successOr
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.domain.model.Notes
 import com.example.noteapp.domain.model.Notes.Companion.toNotes
 import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.util.ErrorMessage
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-
+import java.util.*
+import com.example.noteapp.data.Result
 class MainViewModel(
     application: Application,
     private val noteRepository: NoteRepository
@@ -35,11 +34,29 @@ class MainViewModel(
         refreshNotes()
     }
 
-    fun refreshNotes() {
+    fun refreshNotes() = viewModelScope.launch {
         viewModelState.update { it.copy(isLoading = true) }
-        viewModelScope.launch(Dispatchers.IO) {
-            val notes: Notes = noteRepository.getAll().toNotes()
-            viewModelState.update { it.copy(notes = notes, isLoading = false) }
+        val notesDeferred = async { noteRepository.getAll() }
+        val notes: Notes = notesDeferred.await().successOr(emptyList()).toNotes()
+        viewModelState.update {
+            it.copy(notes = notes, isLoading = false)
+        }
+    }
+
+    fun refreshNotes2() = viewModelScope.launch {
+        viewModelState.update { it.copy(isLoading = true) }
+        val result: Result<List<Note>> = noteRepository.getAll()
+        viewModelState.update {
+            when(result) {
+                is Result.Success -> it.copy(notes = result.data.toNotes(), isLoading = false)
+                is Result.Error -> {
+                    val errorMessage = ErrorMessage(
+                        id = UUID.randomUUID().mostSignificantBits,
+                        message = result.exception.message.toString()
+                    )
+                    it.copy(errorMessage = errorMessage, isLoading = false)
+                }
+            }
         }
     }
 
@@ -73,7 +90,7 @@ private data class MainViewModelState(
         if (notes == null) {
             MainUiState.NoNotes(
                 isLoading = isLoading,
-                errorMessage = errorMessage ?: ErrorMessage(0,0)
+                errorMessage = errorMessage ?: ErrorMessage(0,"")
             )
         } else {
             MainUiState.HasNotes(
@@ -86,7 +103,7 @@ private data class MainViewModelState(
                 } ?: Note(0,"",""),
                 isNoteOpen = isNoteOpen,
                 isLoading = isLoading,
-                errorMessage = errorMessage ?: ErrorMessage(0,0)
+                errorMessage = errorMessage ?: ErrorMessage(0,"")
             )
         }
 }

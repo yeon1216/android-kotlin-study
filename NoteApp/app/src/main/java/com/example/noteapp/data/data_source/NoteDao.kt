@@ -11,7 +11,7 @@ interface NoteDao {
     fun observeNotes(): Flow<List<Note>>
 
     @Query("SELECT * FROM Note ORDER BY date DESC")
-    fun notes(): List<Note>
+    suspend fun getAll(): List<Note>
 
     @Query("SELECT * FROM Note Where uid = :uid")
     suspend fun get(uid: Int): Note
