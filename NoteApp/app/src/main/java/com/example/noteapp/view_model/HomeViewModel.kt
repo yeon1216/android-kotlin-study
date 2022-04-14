@@ -13,12 +13,12 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.*
 import com.example.noteapp.data.Result
-class MainViewModel(
+class HomeViewModel(
     application: Application,
     private val noteRepository: NoteRepository
 ): AndroidViewModel(application) {
 
-    private val viewModelState = MutableStateFlow(MainViewModelState(
+    private val viewModelState = MutableStateFlow(HomeViewModelState(
         isLoading = true
     ))
 
@@ -76,24 +76,52 @@ class MainViewModel(
         noteRepository.insert(Note(title = "test-title 5", content = "test-content 5"))
     }
 
+    fun interactWithNoteDetail(noteId: Int) {
+        viewModelState.update {
+            it.copy(
+                selectedNoteId = noteId,
+                isNoteOpen = true
+            )
+        }
+    }
+
+    fun interactWithNoteList() {
+        viewModelState.update {
+            it.copy(
+                isNoteOpen = false,
+                isWriteOpen = false
+            )
+        }
+    }
+
+    fun interactWithNoteWrite() {
+        viewModelState.update {
+            it.copy(
+                isWriteOpen = true
+            )
+        }
+    }
+
 }
 
-private data class MainViewModelState(
+private data class HomeViewModelState(
     val notes: Notes? = null,
     val selectedNoteId: Int? = 0, // TODO back selectedPostId in a SavedStateHandle
     val isNoteOpen: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: ErrorMessage? = null
+    val errorMessage: ErrorMessage? = null,
+    val isWriteOpen: Boolean = false
 ) {
 
-    fun toUiState(): MainUiState =
+    fun toUiState(): HomeUiState =
         if (notes == null) {
-            MainUiState.NoNotes(
+            HomeUiState.NoNotes(
                 isLoading = isLoading,
-                errorMessage = errorMessage ?: ErrorMessage(0,"")
+                errorMessage = errorMessage ?: ErrorMessage(0,""),
+                isWriteOpen = isWriteOpen
             )
         } else {
-            MainUiState.HasNotes(
+            HomeUiState.HasNotes(
                 notes = notes,
                 // Determine the selected post. This will be the post the user last selected.
                 // If there is none (or that post isn't in the current feed), default to the
@@ -103,27 +131,31 @@ private data class MainViewModelState(
                 } ?: Note(0,"",""),
                 isNoteOpen = isNoteOpen,
                 isLoading = isLoading,
-                errorMessage = errorMessage ?: ErrorMessage(0,"")
+                errorMessage = errorMessage ?: ErrorMessage(0,""),
+                isWriteOpen = isWriteOpen
             )
         }
 }
 
 
-sealed interface MainUiState {
+sealed interface HomeUiState {
     val isLoading: Boolean
     val errorMessage: ErrorMessage
+    val isWriteOpen: Boolean
 
     data class NoNotes(
         override val isLoading: Boolean,
-        override val errorMessage: ErrorMessage
-    ): MainUiState
+        override val errorMessage: ErrorMessage,
+        override val isWriteOpen: Boolean
+    ): HomeUiState
 
     data class HasNotes(
         val notes: Notes,
         val selectedNote: Note,
         val isNoteOpen: Boolean,
         override val isLoading: Boolean,
-        override val errorMessage: ErrorMessage
-    ): MainUiState
+        override val errorMessage: ErrorMessage,
+        override val isWriteOpen: Boolean
+    ): HomeUiState
 
 }

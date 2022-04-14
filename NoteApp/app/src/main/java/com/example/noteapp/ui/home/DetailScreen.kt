@@ -2,7 +2,6 @@ package com.example.noteapp.ui.detail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -14,16 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.R
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.util.DEVLogger
-import com.example.noteapp.view_model.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
-    viewModel: MainViewModel,
-    coroutineScope: CoroutineScope,
-    noteId: Int
+    selectedNote: Note
 ) {
     Scaffold(
         topBar = {
@@ -56,8 +51,7 @@ fun DetailScreen(
                     IconButton(onClick = { DEVLogger.d("onClick back") }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
-//                            contentDescription = stringResource(R.string.cd_navigate_up),
-                            contentDescription = "up",
+                            contentDescription = "back",
                             tint = MaterialTheme.colors.primary
                         )
                     }
@@ -68,16 +62,13 @@ fun DetailScreen(
         },
 //        bottomBar = bottomBarContent
     ) {
+        DEVLogger.d("selectedNote : ${selectedNote.title}, ${selectedNote.content} ")
 
-    }
-}
+        Text(text = selectedNote.title, style = MaterialTheme.typography.h4)
+        Spacer(Modifier.height(8.dp))
 
-fun LazyListScope.noteContentItems(
-    viewModel: MainViewModel,
-    coroutineScope: CoroutineScope,
-    noteId: Int
-) {
-    coroutineScope.launch {
-        viewModel.getNote(noteId = noteId)
+        Text(text = selectedNote.content, style = MaterialTheme.typography.h4)
+        Spacer(Modifier.height(8.dp))
+
     }
 }

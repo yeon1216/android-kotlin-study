@@ -14,18 +14,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.ui.components.NoteItem
-import com.example.noteapp.view_model.MainUiState
+import com.example.noteapp.util.DEVLogger
+import com.example.noteapp.view_model.HomeUiState
 
 @Composable
 fun HomeScreen(
-    uiState: MainUiState,
+    uiState: HomeUiState,
     onClickFloatingBtn: () -> Unit,
     onClickItem: (noteId: Int) -> Unit
 ) {
 
     val notes: List<Note> = when(uiState) {
-        is MainUiState.HasNotes -> uiState.notes.allNotes
-        is MainUiState.NoNotes -> emptyList()
+        is HomeUiState.HasNotes -> uiState.notes.allNotes
+        is HomeUiState.NoNotes -> emptyList()
     }
 
     Scaffold(
@@ -37,6 +38,7 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    DEVLogger.d("FloatingActionButton onClick")
                     onClickFloatingBtn()
                 }
             ) {
