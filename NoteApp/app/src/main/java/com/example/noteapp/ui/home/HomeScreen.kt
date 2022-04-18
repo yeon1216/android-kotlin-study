@@ -38,7 +38,6 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    DEVLogger.d("FloatingActionButton onClick")
                     onClickFloatingBtn()
                 }
             ) {

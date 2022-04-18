@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.noteapp.ui.detail.DetailScreen
 import com.example.noteapp.ui.write.WriteScreen
-import com.example.noteapp.util.DEVLogger
 import com.example.noteapp.view_model.HomeUiState
 import com.example.noteapp.view_model.HomeViewModel
 
@@ -19,7 +18,6 @@ fun HomeRoute(
     HomeRoute(
         homeUiState = homeUiState,
         onInteractWithNoteWrite = {
-            DEVLogger.d("onInteractWithNoteWrite()")
             homeViewModel.interactWithNoteWrite()
         },
         onInteractWithNoteDetail = { noteId -> homeViewModel.interactWithNoteDetail(noteId) },
@@ -38,7 +36,6 @@ fun HomeRoute(
 
     when(getHomeScreenType(homeUiState)) {
         HomeScreenType.NoteList -> {
-            DEVLogger.d("HomeScreenType.NoteList")
             HomeScreen(
                 uiState = homeUiState,
                 onClickFloatingBtn = onInteractWithNoteWrite,
@@ -46,15 +43,16 @@ fun HomeRoute(
             )
         }
         HomeScreenType.NoteDetail -> {
-            DEVLogger.d("HomeScreenType.NoteDetail")
             check(homeUiState is HomeUiState.HasNotes)
-            DetailScreen(homeUiState.selectedNote)
+            DetailScreen(
+                homeUiState.selectedNote,
+                onClickArrowBack = onInteractWithNoteList
+            )
             BackHandler {
                 onInteractWithNoteList()
             }
         }
         HomeScreenType.NoteWrite -> {
-            DEVLogger.d("HomeScreenType.NoteWrite")
             WriteScreen()
             BackHandler {
                 onInteractWithNoteList()
