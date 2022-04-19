@@ -60,8 +60,8 @@ class HomeViewModel(
         }
     }
 
-    fun insertNote(title: String, content: String) = viewModelScope.launch {
-        noteRepository.insert(Note(title = title, content = content))
+    fun insertNote(insertNote: Note) = viewModelScope.launch {
+        noteRepository.insert(note = insertNote)
     }
 
     fun getNote(noteId: Int) = viewModelScope.launch {
@@ -128,7 +128,7 @@ private data class HomeViewModelState(
                 // highlighted post
                 selectedNote = notes.allNotes.find {
                     it.uid == selectedNoteId
-                } ?: Note(0,"",""),
+                } ?: Note("",""),
                 isNoteOpen = isNoteOpen,
                 isLoading = isLoading,
                 errorMessage = errorMessage ?: ErrorMessage(0,""),

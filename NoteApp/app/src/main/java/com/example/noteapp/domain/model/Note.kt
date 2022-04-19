@@ -7,8 +7,6 @@ import java.util.*
 
 @Entity
 data class Note(
-    @PrimaryKey(autoGenerate = true)
-    val uid: Int = 0,
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "content")
@@ -16,6 +14,6 @@ data class Note(
     @ColumnInfo(name = "date")
     val date: Long = Calendar.getInstance().timeInMillis
 ) {
-//    @PrimaryKey(autoGenerate = true)
-//    var uid: Int = -1
+    @PrimaryKey(autoGenerate = true)
+    var uid: Int = 0
 }

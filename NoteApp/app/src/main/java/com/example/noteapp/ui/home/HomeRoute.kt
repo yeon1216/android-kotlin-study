@@ -4,8 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.noteapp.ui.detail.DetailScreen
-import com.example.noteapp.ui.write.WriteScreen
+import com.example.noteapp.domain.model.Note
 import com.example.noteapp.view_model.HomeUiState
 import com.example.noteapp.view_model.HomeViewModel
 
@@ -17,6 +16,11 @@ fun HomeRoute(
     val homeUiState: HomeUiState by homeViewModel.uiState.collectAsState()
     HomeRoute(
         homeUiState = homeUiState,
+        onClickWriteBtn = {
+            homeViewModel.insertNote(it)
+            homeViewModel.interactWithNoteList()
+            homeViewModel.refreshNotes()
+        },
         onInteractWithNoteWrite = {
             homeViewModel.interactWithNoteWrite()
         },
@@ -29,6 +33,7 @@ fun HomeRoute(
 @Composable
 fun HomeRoute(
     homeUiState: HomeUiState,
+    onClickWriteBtn: (writeNote: Note) -> Unit,
     onInteractWithNoteWrite: () -> Unit,
     onInteractWithNoteDetail: (noteId: Int) -> Unit,
     onInteractWithNoteList: () -> Unit,
@@ -53,7 +58,9 @@ fun HomeRoute(
             }
         }
         HomeScreenType.NoteWrite -> {
-            WriteScreen()
+            WriteScreen(
+                onClickWriteBtn = onClickWriteBtn
+            )
             BackHandler {
                 onInteractWithNoteList()
             }

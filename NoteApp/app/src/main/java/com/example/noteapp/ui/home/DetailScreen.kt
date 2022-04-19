@@ -1,4 +1,4 @@
-package com.example.noteapp.ui.detail
+package com.example.noteapp.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -89,10 +89,8 @@ fun DetailScreen(
 fun PreviewDetailScreen() {
     DetailScreen(
         selectedNote = Note(
-                            uid = 0,
                             title = "title",
-                            content = "content",
-                            date = 11111111
+                            content = "content"
                         ),
         onClickArrowBack = {}
     )
