@@ -75,4 +75,7 @@ dependencies {
     // navigation
     implementation "androidx.navigation:navigation-compose:$nav_version"
 
+    // coil : img painter
+    implementation "io.coil-kt:coil-compose:1.4.0"
+
 }
