@@ -1,9 +1,12 @@
 package com.example.noteapp.view_model
 
+import android.Manifest
 import android.app.Application
 import android.content.ContentUris
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.util.DEVLogger
@@ -27,10 +30,18 @@ class GalleryViewModel(
         )
 
     init {
-        fetchImages()
+        if (ContextCompat.checkSelfPermission(
+                application.applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE,
+            ) == PackageManager.PERMISSION_GRANTED) {
+            fetchImages()
+        } else {
+            viewModelState.update {
+                it.copy(isLoading = false, isPermission = false)
+            }
+        }
     }
 
-    private fun fetchImages() {
+    fun fetchImages() {
         DEVLogger.d("fetchImages() start")
         val uris = mutableListOf<Uri>()
 
@@ -54,9 +65,13 @@ class GalleryViewModel(
         }
 
         viewModelState.update {
-            it.copy(imgUris = uris, isLoading = false)
+            it.copy(imgUris = uris, isLoading = false, isPermission = true)
         }
 
+    }
+
+    fun onGrantedPermission() {
+        fetchImages()
     }
 
 }
@@ -64,6 +79,7 @@ class GalleryViewModel(
 private data class GalleryViewModelState(
     val imgUris: List<Uri>? = null,
     val isLoading: Boolean = false,
+    val isPermission: Boolean = false,
     val errorMessage: ErrorMessage? = null
 ) {
 
@@ -71,12 +87,14 @@ private data class GalleryViewModelState(
         if (imgUris == null) {
             GalleryUiState.NoContents(
                 isLoading = isLoading,
+                isPermission = isPermission,
                 errorMessage = errorMessage ?: ErrorMessage(0,"")
             )
         } else {
             GalleryUiState.HasContents(
                 imgUris = imgUris,
                 isLoading = isLoading,
+                isPermission = isPermission,
                 errorMessage = errorMessage ?: ErrorMessage(0,"")
             )
         }
@@ -85,16 +103,19 @@ private data class GalleryViewModelState(
 
 sealed interface GalleryUiState {
     val isLoading: Boolean
+    val isPermission: Boolean
     val errorMessage: ErrorMessage
 
     data class NoContents(
         override val isLoading: Boolean,
+        override val isPermission: Boolean,
         override val errorMessage: ErrorMessage
     ): GalleryUiState
 
     data class HasContents(
         val imgUris: List<Uri>,
         override val isLoading: Boolean,
+        override val isPermission: Boolean,
         override val errorMessage: ErrorMessage
     ): GalleryUiState
 

@@ -24,40 +24,30 @@ import com.example.noteapp.util.DEVLogger
 fun GalleryGridScreen(
     imgUris: List<Uri>
 ) {
-    DEVLogger.d("GalleryGridScreen start ${imgUris.size}")
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Gallery")}
-            )
-        }
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp
+    val cardHeight: Dp = (screenWidth - 12.dp) / 3
+
+    LazyVerticalGrid(
+        cells = GridCells.Fixed(3),
+        contentPadding = PaddingValues(0.dp)
     ) {
+        items(imgUris.size) { imgIndex ->
 
-        val configuration = LocalConfiguration.current
-        val screenWidth = configuration.screenWidthDp.dp
-        val screenHeight = configuration.screenHeightDp
-        val cardHeight: Dp = (screenWidth - 12.dp) / 3
-
-        LazyVerticalGrid(
-            cells = GridCells.Fixed(3),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            items(imgUris.size) { imgIndex ->
-
-                Card(
-                    modifier = Modifier.height(cardHeight).padding(2.dp)
-                ) {
-                    Image(
-                        painter = rememberImagePainter(
-                            data = imgUris[imgIndex],
-                        ),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
+            Card(
+                modifier = Modifier.height(cardHeight).padding(2.dp)
+            ) {
+                Image(
+                    painter = rememberImagePainter(
+                        data = imgUris[imgIndex],
+                    ),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
+
         }
     }
 

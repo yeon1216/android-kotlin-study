@@ -11,11 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.domain.model.Note
+import com.example.noteapp.ui.gallery.GalleryActivity
 import kotlinx.coroutines.launch
 
 
@@ -25,6 +27,8 @@ fun WriteScreen(
 ) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+
+    val galleryPickIntent = Intent(LocalContext.current, GalleryActivity::class.java)
 
     val takePhotoFromAlbumIntentGetContent =
         Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
@@ -110,7 +114,7 @@ fun WriteScreen(
 
                 Button(
                     onClick = {
-                        takePhotoFromAlbumLauncher.launch(takePhotoFromAlbumIntentActionPick)
+                        takePhotoFromAlbumLauncher.launch(galleryPickIntent)
                     },
                     colors = ButtonDefaults.textButtonColors(),
                     modifier = Modifier.padding(20.dp)
