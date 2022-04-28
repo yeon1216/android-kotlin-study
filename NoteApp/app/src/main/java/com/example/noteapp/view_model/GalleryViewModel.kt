@@ -3,6 +3,7 @@ package com.example.noteapp.view_model
 import android.Manifest
 import android.app.Application
 import android.content.ContentUris
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
@@ -30,9 +31,7 @@ class GalleryViewModel(
         )
 
     init {
-        if (ContextCompat.checkSelfPermission(
-                application.applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE,
-            ) == PackageManager.PERMISSION_GRANTED) {
+        if (isPermission(applicationContext = application.applicationContext)) {
             fetchImages()
         } else {
             viewModelState.update {
@@ -40,6 +39,11 @@ class GalleryViewModel(
             }
         }
     }
+
+    fun isPermission(applicationContext: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE,
+        ) == PackageManager.PERMISSION_GRANTED
 
     fun fetchImages() {
         DEVLogger.d("fetchImages() start")
@@ -70,9 +74,6 @@ class GalleryViewModel(
 
     }
 
-    fun onGrantedPermission() {
-        fetchImages()
-    }
 
 }
 
@@ -84,7 +85,13 @@ private data class GalleryViewModelState(
 ) {
 
     fun toUiState(): GalleryUiState =
-        if (imgUris == null) {
+        if (!isPermission) {
+            GalleryUiState.NoPermission(
+                isLoading = isLoading,
+                isPermission = isPermission,
+                errorMessage = errorMessage ?: ErrorMessage(0,"")
+            )
+        } else if (imgUris == null) {
             GalleryUiState.NoContents(
                 isLoading = isLoading,
                 isPermission = isPermission,
@@ -105,6 +112,12 @@ sealed interface GalleryUiState {
     val isLoading: Boolean
     val isPermission: Boolean
     val errorMessage: ErrorMessage
+
+    data class NoPermission(
+        override val isLoading: Boolean,
+        override val isPermission: Boolean,
+        override val errorMessage: ErrorMessage
+    ): GalleryUiState
 
     data class NoContents(
         override val isLoading: Boolean,

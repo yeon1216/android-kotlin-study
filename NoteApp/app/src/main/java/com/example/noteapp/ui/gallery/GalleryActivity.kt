@@ -14,7 +14,10 @@ class GalleryActivity : AppCompatActivity() {
             val galleryViewModel: GalleryViewModel = viewModel(
                 factory = InjectorUtils.providerGalleryViewModelFactory(application)
             )
-            GalleryRoute(galleryViewModel = galleryViewModel)
+            GalleryRoute(
+                galleryViewModel = galleryViewModel,
+                galleryActivity = this@GalleryActivity
+            )
         }
     }
 }
