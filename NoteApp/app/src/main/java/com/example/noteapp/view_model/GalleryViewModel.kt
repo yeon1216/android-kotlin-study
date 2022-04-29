@@ -46,7 +46,7 @@ class GalleryViewModel(
         ) == PackageManager.PERMISSION_GRANTED
 
     fun fetchImages() {
-        DEVLogger.d("fetchImages() start")
+        viewModelState.update { it.copy(isLoading = true) }
         val uris: MutableList<Uri> = mutableListOf<Uri>()
 
         getApplication<Application>().contentResolver.query(
