@@ -13,6 +13,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.*
 import com.example.noteapp.data.Result
+import com.example.noteapp.util.DEVLogger
+
 class HomeViewModel(
     application: Application,
     private val noteRepository: NoteRepository
@@ -102,11 +104,22 @@ class HomeViewModel(
         }
     }
 
+    // TODO update logic
+    fun errorShown(errorId: Long) {
+        viewModelState.update { currentUiState ->
+            if (currentUiState.errorMessage?.id == errorId) {
+                currentUiState.copy(errorMessage = ErrorMessage(0, ""))
+            } else {
+                currentUiState.copy(errorMessage = ErrorMessage(0, ""))
+            }
+        }
+    }
+
 }
 
 private data class HomeViewModelState(
     val notes: Notes? = null,
-    val selectedNoteId: Int? = 0, // TODO back selectedPostId in a SavedStateHandle
+    val selectedNoteId: Int? = 0,
     val isNoteOpen: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: ErrorMessage? = null,

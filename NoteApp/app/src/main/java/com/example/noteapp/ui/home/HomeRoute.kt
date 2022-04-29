@@ -1,9 +1,8 @@
 package com.example.noteapp.ui.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.*
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.view_model.HomeUiState
 import com.example.noteapp.view_model.HomeViewModel
@@ -25,7 +24,8 @@ fun HomeRoute(
             homeViewModel.interactWithNoteWrite()
         },
         onInteractWithNoteDetail = { noteId -> homeViewModel.interactWithNoteDetail(noteId) },
-        onInteractWithNoteList = { homeViewModel.interactWithNoteList() }
+        onInteractWithNoteList = { homeViewModel.interactWithNoteList() },
+        onErrorDismiss = { errorId -> homeViewModel.errorShown(errorId) }
     )
 
 }
@@ -37,7 +37,10 @@ fun HomeRoute(
     onInteractWithNoteWrite: () -> Unit,
     onInteractWithNoteDetail: (noteId: Int) -> Unit,
     onInteractWithNoteList: () -> Unit,
+    onErrorDismiss: (Long) -> Unit
 ) {
+
+    val scaffoldState = rememberScaffoldState()
 
     when(getHomeScreenType(homeUiState)) {
         HomeScreenType.NoteList -> {
@@ -64,6 +67,18 @@ fun HomeRoute(
             BackHandler {
                 onInteractWithNoteList()
             }
+        }
+    }
+
+    if(homeUiState.errorMessage.id != 0L) {
+        val errorMessage = remember(homeUiState) { homeUiState.errorMessage }
+        val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
+        LaunchedEffect(errorMessage.message, scaffoldState) {
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = errorMessage.message,
+                actionLabel = null
+            )
+            onErrorDismissState(errorMessage.id)
         }
     }
 
