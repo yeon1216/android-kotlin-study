@@ -1,4 +1,4 @@
-package com.example.noteapp.ui
+package com.example.noteapp.ui.gl
 
 import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
