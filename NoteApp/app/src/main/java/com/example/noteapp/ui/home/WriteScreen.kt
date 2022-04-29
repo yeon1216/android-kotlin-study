@@ -47,10 +47,10 @@ fun WriteScreen(
     val takePhotoFromAlbumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let { uri ->
+                result.data?.data?.let { data ->
                     scope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(
-                            message = "$uri 선택",
+                            message = "$data 선택",
                             actionLabel = null
                         )
                     }

@@ -1,14 +1,13 @@
 package com.example.noteapp.ui.gallery
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.app.ActivityCompat
@@ -49,7 +48,9 @@ fun GalleryRoute(
             } else {
                 moveToSettingActivity(galleryActivity = galleryActivity)
             }
-        }
+        },
+        onSelectedImg = { imgIndex -> galleryViewModel.onSelectedImg(imgIndex) },
+        onErrorDismiss = { errorId -> galleryViewModel.errorShown(errorId) }
     )
 
 }
@@ -62,13 +63,20 @@ fun moveToSettingActivity(galleryActivity: GalleryActivity) {
     galleryActivity.startActivity(intent)
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun GalleryRoute(
     galleryUiState: GalleryUiState,
-    requestPermission: () -> Unit
+    requestPermission: () -> Unit,
+    onSelectedImg: (imgIndex: Int) -> Unit,
+    onErrorDismiss: (Long) -> Unit,
 ) {
 
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text("Gallery") }
@@ -78,7 +86,11 @@ fun GalleryRoute(
         when(getGalleryScreenType(galleryUiState)) {
             GalleryScreenType.ImgList -> {
                 check(galleryUiState is GalleryUiState.HasContents)
-                GalleryGridScreen(imgUris = galleryUiState.imgUris)
+                GalleryGridScreen(
+                    imgUris = galleryUiState.imgUris,
+                    selectedImgIndex = galleryUiState.selectedImgIndexList,
+                    onSelectedImg = onSelectedImg
+                )
             }
             GalleryScreenType.NoPermission -> {
                 NoPermissionScreen {
@@ -87,6 +99,18 @@ fun GalleryRoute(
             }
             GalleryScreenType.NoImg -> {
                 // TODO
+            }
+        }
+
+        if(galleryUiState.errorMessage.id != 0L) {
+            val errorMessage = remember(galleryUiState) { galleryUiState.errorMessage }
+            val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
+            LaunchedEffect(errorMessage.message, scaffoldState) {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    message = errorMessage.message,
+                    actionLabel = null
+                )
+                onErrorDismissState(errorMessage.id)
             }
         }
     }

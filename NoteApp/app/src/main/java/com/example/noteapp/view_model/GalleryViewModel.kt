@@ -47,7 +47,7 @@ class GalleryViewModel(
 
     fun fetchImages() {
         DEVLogger.d("fetchImages() start")
-        val uris = mutableListOf<Uri>()
+        val uris: MutableList<Uri> = mutableListOf<Uri>()
 
         getApplication<Application>().contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -74,11 +74,45 @@ class GalleryViewModel(
 
     }
 
+    fun onSelectedImg(imgIndex: Int) {
+        val tempSelectedImgIndexList: MutableList<Int> = mutableListOf()
+        viewModelState.value.selectedImgIndexList?.forEach {
+            tempSelectedImgIndexList.add(it)
+        }
+        if (tempSelectedImgIndexList.contains(imgIndex)) {
+            tempSelectedImgIndexList.remove(imgIndex)
+        } else {
+            tempSelectedImgIndexList.add(imgIndex)
+        }
+        if (tempSelectedImgIndexList.size > 3) {
+            viewModelState.update {
+                it.copy(isLoading = false, isPermission = true, errorMessage = ErrorMessage(1, "You can select up to three images."))
+            }
+        } else {
+            viewModelState.update {
+                it.copy(selectedImgIndexList = tempSelectedImgIndexList, isLoading = false, isPermission = true)
+            }
+        }
+
+    }
+
+    // TODO update logic
+    fun errorShown(errorId: Long) {
+        viewModelState.update { currentUiState ->
+            if (currentUiState.errorMessage?.id == errorId) {
+                currentUiState.copy(errorMessage = ErrorMessage(0, ""))
+            } else {
+                currentUiState.copy(errorMessage = ErrorMessage(0, ""))
+            }
+        }
+    }
+
 
 }
 
 private data class GalleryViewModelState(
     val imgUris: List<Uri>? = null,
+    val selectedImgIndexList: List<Int>? = null,
     val isLoading: Boolean = false,
     val isPermission: Boolean = false,
     val errorMessage: ErrorMessage? = null
@@ -95,14 +129,15 @@ private data class GalleryViewModelState(
             GalleryUiState.NoContents(
                 isLoading = isLoading,
                 isPermission = isPermission,
-                errorMessage = errorMessage ?: ErrorMessage(0,"")
+                errorMessage = errorMessage ?: ErrorMessage(0L,"")
             )
         } else {
             GalleryUiState.HasContents(
                 imgUris = imgUris,
+                selectedImgIndexList = selectedImgIndexList ?: listOf(),
                 isLoading = isLoading,
                 isPermission = isPermission,
-                errorMessage = errorMessage ?: ErrorMessage(0,"")
+                errorMessage = errorMessage ?: ErrorMessage(0L,"")
             )
         }
 }
@@ -127,6 +162,7 @@ sealed interface GalleryUiState {
 
     data class HasContents(
         val imgUris: List<Uri>,
+        val selectedImgIndexList: List<Int>,
         override val isLoading: Boolean,
         override val isPermission: Boolean,
         override val errorMessage: ErrorMessage

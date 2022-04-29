@@ -43,7 +43,6 @@ fun DetailScreen(
                             text = "Detail : \n${selectedNote.title}",
                             style = MaterialTheme.typography.subtitle1,
                             color = LocalContentColor.current,
-
                             modifier = Modifier
                                 .padding(start = 10.dp)
                                 .weight(1.5f)
@@ -65,22 +64,17 @@ fun DetailScreen(
         },
 //        bottomBar = bottomBarContent
     ) {
-        DEVLogger.d("selectedNote : ${selectedNote.title}, ${selectedNote.content} ")
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentWidth(align = Alignment.Start)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
-
             Text(
                 text = selectedNote.content,
                 fontSize = 24.sp
             )
-
         }
-
     }
 }
 
