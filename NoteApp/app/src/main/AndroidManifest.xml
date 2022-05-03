@@ -20,7 +20,7 @@
             android:exported="true"
             android:theme="@style/Theme.NoteApp.NoActionBar"/>
         <activity
-            android:name=".ui.OpenGLES20Activity"
+            android:name=".ui.gl.OpenGLES20Activity"
             android:exported="true" />
         <activity
             android:name=".ui.MainActivity"

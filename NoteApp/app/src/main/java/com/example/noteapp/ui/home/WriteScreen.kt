@@ -18,6 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.noteapp.domain.model.Note
 import com.example.noteapp.ui.gallery.GalleryActivity
+import com.example.noteapp.ui.gl.OpenGLES20Activity
+import com.example.noteapp.util.DEVLogger
 import kotlinx.coroutines.launch
 
 
@@ -29,6 +31,7 @@ fun WriteScreen(
     val scope = rememberCoroutineScope()
 
     val galleryPickIntent = Intent(LocalContext.current, GalleryActivity::class.java)
+    val drawingIntent = Intent(LocalContext.current, OpenGLES20Activity::class.java)
 
     val takePhotoFromAlbumIntentGetContent =
         Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
@@ -48,27 +51,25 @@ fun WriteScreen(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { data ->
-                    scope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = "$data 선택",
-                            actionLabel = null
-                        )
-                    }
+                    DEVLogger.d("[success] result : $data")
                 } ?: run {
-                    scope.launch {
-                        scaffoldState.snackbarHostState.showSnackbar(
-                            message = "에러 발생",
-                            actionLabel = null
-                        )
-                    }
+                    DEVLogger.d("[error] result : no data")
                 }
             } else if (result.resultCode != Activity.RESULT_CANCELED) {
-                scope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        message = "취소",
-                        actionLabel = null
-                    )
+                DEVLogger.d("[cancel] result : none")
+            }
+        }
+
+    val takeDrawingFromBoardLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { data ->
+                    DEVLogger.d("[success] result : $data")
+                } ?: run {
+                    DEVLogger.d("[error] result : no data")
                 }
+            } else if (result.resultCode != Activity.RESULT_CANCELED) {
+                DEVLogger.d("[cancel] result : none")
             }
         }
 
@@ -140,6 +141,17 @@ fun WriteScreen(
                     colors = ButtonDefaults.textButtonColors()
                 ) {
                     Text("Select Image")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        takeDrawingFromBoardLauncher.launch(drawingIntent)
+                    },
+                    colors = ButtonDefaults.textButtonColors()
+                ) {
+                    Text("Drawing")
                 }
 
             }
