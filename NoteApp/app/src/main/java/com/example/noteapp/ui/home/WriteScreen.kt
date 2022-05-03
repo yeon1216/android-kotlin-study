@@ -72,6 +72,9 @@ fun WriteScreen(
             }
         }
 
+    var titleValue by remember { mutableStateOf("") }
+    var contentValue by remember { mutableStateOf("") }
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
@@ -79,11 +82,31 @@ fun WriteScreen(
                 title = { Text("Write") }
             )
         },
+        bottomBar = {
+            BottomBar(
+                onClickWriteBtn = {
+                    if (titleValue.isNotEmpty()) {
+                        onClickWriteBtn(
+                            Note(
+                                title = titleValue,
+                                content = contentValue
+                            )
+                        )
+                    } else {
+                        scope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = "Please enter a title.",
+                                actionLabel = null
+                            )
+                        }
+                    }
+                }
+            )
+        }
     ) {
         Column {
 
-            var titleValue by remember { mutableStateOf("") }
-            var contentValue by remember { mutableStateOf("") }
+
 
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -95,8 +118,7 @@ fun WriteScreen(
                     onValueChange = { titleValue = it },
                     label = { Text("Title") },
                     maxLines = 1,
-                    textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(20.dp)
+                    textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -105,9 +127,8 @@ fun WriteScreen(
                     value = contentValue,
                     onValueChange = { contentValue = it },
                     label = { Text("Content") },
-                    maxLines = 5,
-                    textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(20.dp)
+                    maxLines = 8,
+                    textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Normal)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -116,38 +137,39 @@ fun WriteScreen(
                     onClick = {
                         takePhotoFromAlbumLauncher.launch(galleryPickIntent)
                     },
-                    colors = ButtonDefaults.textButtonColors(),
-                    modifier = Modifier.padding(20.dp)
+                    colors = ButtonDefaults.textButtonColors()
                 ) {
                     Text("Select Image")
                 }
 
             }
 
-            Row(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                Button(
-                    onClick = {
-                        onClickWriteBtn(
-                            Note(
-                                title = titleValue,
-                                content = contentValue
-                            )
-                        )
-                    },
-                    colors = ButtonDefaults.textButtonColors()
-                ) {
-                    Text("Write")
-                }
-            }
         }
 
     }
 
+}
+
+@Composable
+private fun BottomBar(
+    onClickWriteBtn: () -> Unit
+) {
+    Surface(elevation = 8.dp) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .height(56.dp)
+                .fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = onClickWriteBtn,
+                modifier = Modifier.padding(end = 16.dp)
+            ) {
+                Text("Write")
+            }
+        }
+    }
 }
 
 @Preview
