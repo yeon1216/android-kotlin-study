@@ -3,7 +3,6 @@ package com.example.noteapp.ui.gl
 import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.noteapp.ui.gl.MyGLSurfaceView
 
 class OpenGLES20Activity : AppCompatActivity() {
     private lateinit var gLView: GLSurfaceView
@@ -13,7 +12,8 @@ class OpenGLES20Activity : AppCompatActivity() {
 
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
-        gLView = MyGLSurfaceView(this)
+        gLView = PencilGLSurfaceView(this@OpenGLES20Activity)
+//        gLView = MyGLSurfaceView(this@OpenGLES20Activity)
         setContentView(gLView)
     }
 }
