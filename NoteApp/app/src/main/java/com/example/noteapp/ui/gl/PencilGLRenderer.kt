@@ -7,11 +7,18 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.example.noteapp.util.DEVLogger
+import com.example.noteapp.view_model.OpenGLViewModel
 import kotlin.math.sqrt
 
 class PencilGLRenderer : GLSurfaceView.Renderer {
 
     private lateinit var mPencil: Pencil
+    private var viewModel: OpenGLViewModel? = null
+    fun setViewModel(viewModel: OpenGLViewModel) {
+        this.viewModel = viewModel
+        DEVLogger.d("setViewModel() ")
+        viewModel.setWH(winWidth, winHeight)
+    }
 
     // vPMatrix is an abbreviation for "Model View Projection Matrix"
     private val vPMatrix = FloatArray(16)
@@ -21,16 +28,7 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
     private var winWidth = 0
     private var winHeight = 0
 
-    @Volatile
-    var coordi: FloatArray = FloatArray(6)
 
-    private fun logArr(msg: String, arr: FloatArray) {
-        arr.forEachIndexed { index, fl ->
-            val i = index / sqrt(arr.size.toDouble()).toInt()
-            val j = index % sqrt(arr.size.toDouble()).toInt()
-            DEVLogger.d("$msg ($i, $j) : $fl")
-        }
-    }
 
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -51,24 +49,12 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        mPencil.draw(convertCoordinate(coordi), vPMatrix)
-    }
-
-    private fun convertCoordinate(winCoordinate: FloatArray): FloatArray {
-        val w = winWidth
-        val h = winHeight
-        winCoordinate[0] = -((winCoordinate[0] - (w.toFloat() / 2.0F)) * (1.0F / (w / 2.0F)))
-        winCoordinate[1] = -((winCoordinate[1] - (h.toFloat() / 2.0F)) * (1.0F / (h / 2.0F)))
-        winCoordinate[3] = -((winCoordinate[3] - (w.toFloat() / 2.0F)) * (1.0F / (w / 2.0F)))
-        winCoordinate[4] = -((winCoordinate[4] - (h.toFloat() / 2.0F)) * (1.0F / (h / 2.0F)))
-        // logArr("winCoordinate", winCoordinate)
-        return winCoordinate
+        viewModel?.coordinates?.let { mPencil.draw(it.value, vPMatrix) }
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        winHeight = height
-        winWidth = width
+        viewModel?.setWH(height = height, width = width)
         val ratio: Float = width.toFloat() / height.toFloat()
 
         // this projection matrix is applied to object coordinates

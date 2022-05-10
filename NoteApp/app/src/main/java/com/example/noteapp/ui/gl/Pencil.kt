@@ -1,14 +1,16 @@
 package com.example.noteapp.ui.gl
 
 import android.opengl.GLES20
+import com.example.noteapp.util.DEVLogger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.util.*
 
 // number of coordinates per vertex in this array
 const val COORDINATES_PER_VERTEX_PENCIL = 3
 
-var pencilCoordinatesSize = 6
+//var pencilCoordinatesSize = 6
 
 class Pencil {
 
@@ -38,8 +40,14 @@ class Pencil {
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
 
-    private val vertexCount: Int = pencilCoordinatesSize / COORDINATES_PER_VERTEX_PENCIL
+//    private val vertexCount: Int = pencilCoordinatesSize / COORDINATES_PER_VERTEX_PENCIL
     private val vertexStride: Int = COORDINATES_PER_VERTEX_PENCIL * 4 // 4 bytes per vertex
+
+//    private val vertexBuffer: FloatBuffer =
+//        ByteBuffer.allocateDirect(pencilCoordinatesSize * 4).run {
+//            order(ByteOrder.nativeOrder())
+//            asFloatBuffer()
+//        }
 
     init {
 
@@ -57,6 +65,10 @@ class Pencil {
 
             // creates OpenGL ES program executables
             GLES20.glLinkProgram(it)
+
+            val linked = intArrayOf(0)
+            GLES20.glGetProgramiv(it, GLES20.GL_LINK_STATUS, linked, 0)
+            check(linked[0] != 0)
         }
     }
 
@@ -70,23 +82,22 @@ class Pencil {
         }
     }
 
-    fun draw(pencilCoords: FloatArray, mvpMatrix: FloatArray) {
+    fun draw(pencilCoordinates: FloatArray, mvpMatrix: FloatArray) {
         GLES20.glUseProgram(mProgram)
         positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also {
 
             // Enable a handle to the triangle vertices
             GLES20.glEnableVertexAttribArray(it)
 
-            val vertexBuffer: FloatBuffer =
-            ByteBuffer.allocateDirect(pencilCoordinatesSize * 4).run {
+            val vertexBuffer = ByteBuffer.allocateDirect( pencilCoordinates.size * 4).run {
                 order(ByteOrder.nativeOrder())
                 asFloatBuffer().apply {
-                    put(pencilCoords)
+                    put(pencilCoordinates)
                     position(0)
                 }
             }
 
-            // Prepare the triangle coordinate data
+            // Prepare the line coordinate data
             GLES20.glVertexAttribPointer(
                 it,
                 COORDINATES_PER_VERTEX_PENCIL,
@@ -96,30 +107,26 @@ class Pencil {
                 vertexBuffer
             )
 
-            mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
+            GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
 
-                // Set color for drawing the triangle
+                // Set color for drawing the line
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
 
-            // Draw the triangle
-            GLES20.glDrawArrays(GLES20.GL_LINES, 0, vertexCount)
+            // Draw the line
+            GLES20.glLineWidth(2.0F)
+            GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, pencilCoordinates.size / COORDINATES_PER_VERTEX_PENCIL)
 
             // Disable vertex array
             GLES20.glDisableVertexAttribArray(it)
         }
 
         // get handle to shape's transformation matrix
-        vPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix")
+        GLES20.glGetUniformLocation(mProgram, "uMVPMatrix").also { vPMatrixHandle ->
+            // Pass the projection and view transformation to the shader
+            GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0)
+        }
 
-        // Pass the projection and view transformation to the shader
-        GLES20.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0)
-
-        // Draw the line
-        GLES20.glDrawArrays(GLES20.GL_LINES, 0, vertexCount)
-
-        // Disable vertex array
-        GLES20.glDisableVertexAttribArray(positionHandle)
     }
 
 }

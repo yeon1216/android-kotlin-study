@@ -6,6 +6,7 @@ import com.example.noteapp.data.respository.NoteRepositoryImpl
 import com.example.noteapp.domain.repository.NoteRepository
 import com.example.noteapp.view_model.GalleryViewModelFactory
 import com.example.noteapp.view_model.HomeViewModelFactory
+import com.example.noteapp.view_model.OpenGLViewModelFactory
 
 object InjectorUtils {
 
@@ -23,6 +24,10 @@ object InjectorUtils {
 
     fun providerGalleryViewModelFactory(application: Application): GalleryViewModelFactory {
         return GalleryViewModelFactory(application = application)
+    }
+
+    fun providerOpenGLViewModelFactory(application: Application): OpenGLViewModelFactory {
+        return OpenGLViewModelFactory(application = application)
     }
 
 }

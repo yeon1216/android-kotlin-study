@@ -3,10 +3,16 @@ package com.example.noteapp.ui.gl
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.view.MotionEvent
+import com.example.noteapp.view_model.OpenGLViewModel
 
 class PencilGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     private val renderer: PencilGLRenderer
+    private var viewModel: OpenGLViewModel? = null
+    fun setViewModel(viewModel: OpenGLViewModel) {
+        this.viewModel = viewModel
+        renderer.setViewModel(viewModel)
+    }
 
     init {
         // Create an OpenGL ES 2.0 context
@@ -32,17 +38,13 @@ class PencilGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
         when (e.action) {
             MotionEvent.ACTION_MOVE -> {
-                renderer.coordi = floatArrayOf(
-                    previousX , previousY, 0f,
+                val tempFloatArray = floatArrayOf(
                     x, y, 0f
                 )
-
-                requestRender()
+//                viewModel?.convertCoordinate(tempFloatArray)
+                viewModel?.updateCoordinates(tempFloatArray)
             }
         }
-
-        previousX = x
-        previousY = y
         return true
     }
 
