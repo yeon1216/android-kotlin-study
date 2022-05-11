@@ -7,9 +7,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.noteapp.util.DEVLogger
 import com.example.noteapp.util.InjectorUtils
+import com.example.noteapp.view_model.LineState
 import com.example.noteapp.view_model.OpenGLViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class OpenGLES20Activity : AppCompatActivity() {
@@ -39,9 +40,15 @@ class OpenGLES20Activity : AppCompatActivity() {
                 // Trigger the flow and start listening for values.
                 // Note that this happens when lifecycle is STARTED and stops
                 // collecting when the lifecycle is STOPPED
-                openGLViewModel.coordinates.collect { coordinates ->
-                    DEVLogger.d("openGLViewModel.coordinates.collect")
-                    gLView.requestRender()
+                openGLViewModel.lineState.collectLatest { lineState ->
+                    when(lineState) {
+                        is LineState.Line -> {
+                            (gLView as PencilGLSurfaceView).requestRender()
+                        }
+                        is LineState.NewLine -> {
+                            (gLView as PencilGLSurfaceView).requestRender()
+                        }
+                    }
                 }
             }
         }

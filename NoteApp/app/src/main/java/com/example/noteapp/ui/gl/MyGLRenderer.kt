@@ -2,13 +2,9 @@ package com.example.noteapp.ui.gl
 
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.os.SystemClock
-import com.example.noteapp.util.DEVLogger
-import kotlin.math.sqrt
 
 class MyGLRenderer : GLSurfaceView.Renderer {
 
@@ -23,14 +19,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     @Volatile
     var angle: Float = 0f
-
-    private fun logArr(msg: String, arr: FloatArray) {
-        arr.forEachIndexed { index, fl ->
-            val i = index / sqrt(arr.size.toDouble())
-            val j = index % sqrt(arr.size.toDouble())
-            DEVLogger.d("$msg ($i, $j) : $fl")
-        }
-    }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
 
@@ -56,8 +44,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
         // Create a rotation transformation for the triangle
-//        val time = SystemClock.uptimeMillis() % 4000L
-//        angle = 0.090f * time.toInt()
         Matrix.setRotateM(rotationMatrix, 0, angle, 0f, 0f, -1.0f)
 
         // Combine the rotation matrix with the projection and camera view

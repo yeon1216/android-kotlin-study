@@ -25,8 +25,7 @@ class PencilGLSurfaceView(context: Context) : GLSurfaceView(context) {
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
-    private var previousX: Float = 0f
-    private var previousY: Float = 0f
+    var isNewLine = true
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
         // MotionEvent reports input details from the touch screen
@@ -38,11 +37,14 @@ class PencilGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
         when (e.action) {
             MotionEvent.ACTION_MOVE -> {
-                val tempFloatArray = floatArrayOf(
+                val tempPoint = floatArrayOf(
                     x, y, 0f
                 )
-//                viewModel?.convertCoordinate(tempFloatArray)
-                viewModel?.updateCoordinates(tempFloatArray)
+                viewModel?.updateLines(tempPoint, isNewLine)
+                isNewLine = false
+            }
+            MotionEvent.ACTION_UP -> {
+                isNewLine = true
             }
         }
         return true

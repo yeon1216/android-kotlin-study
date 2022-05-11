@@ -6,9 +6,8 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.example.noteapp.util.DEVLogger
+import com.example.noteapp.view_model.LineState
 import com.example.noteapp.view_model.OpenGLViewModel
-import kotlin.math.sqrt
 
 class PencilGLRenderer : GLSurfaceView.Renderer {
 
@@ -16,7 +15,6 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
     private var viewModel: OpenGLViewModel? = null
     fun setViewModel(viewModel: OpenGLViewModel) {
         this.viewModel = viewModel
-        DEVLogger.d("setViewModel() ")
         viewModel.setWH(winWidth, winHeight)
     }
 
@@ -49,7 +47,19 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        viewModel?.coordinates?.let { mPencil.draw(it.value, vPMatrix) }
+        viewModel?.lineState?.let { lineState ->
+            val tempLineState = lineState.value
+            val lines = tempLineState.lines
+            when (tempLineState) {
+                is LineState.NewLine -> {
+                    mPencil.draw(lines, vPMatrix, GLES20.GL_LINES)
+                }
+                is LineState.Line -> {
+                    mPencil.draw(lines, vPMatrix, GLES20.GL_LINE_STRIP)
+                }
+            }
+        }
+
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
