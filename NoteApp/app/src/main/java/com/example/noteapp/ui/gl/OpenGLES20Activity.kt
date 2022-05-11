@@ -9,7 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.noteapp.util.DEVLogger
 import com.example.noteapp.util.InjectorUtils
+import com.example.noteapp.view_model.LineState
 import com.example.noteapp.view_model.OpenGLViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class OpenGLES20Activity : AppCompatActivity() {
@@ -24,10 +26,9 @@ class OpenGLES20Activity : AppCompatActivity() {
             )[OpenGLViewModel::class.java]
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
-        gLView = PencilGLSurfaceView(this@OpenGLES20Activity).also {
+        gLView = LineGLSurfaceView(this@OpenGLES20Activity).also {
             it.setViewModel(openGLViewModel)
         }
-//        gLView = MyGLSurfaceView(this@OpenGLES20Activity)
         setContentView(gLView)
 
 
@@ -39,9 +40,18 @@ class OpenGLES20Activity : AppCompatActivity() {
                 // Trigger the flow and start listening for values.
                 // Note that this happens when lifecycle is STARTED and stops
                 // collecting when the lifecycle is STOPPED
-                openGLViewModel.coordinates.collect { coordinates ->
+                openGLViewModel.lineState.collectLatest { lineState ->
                     DEVLogger.d("openGLViewModel.coordinates.collect")
-                    gLView.requestRender()
+                    when(lineState) {
+                        is LineState.Line -> {
+                            DEVLogger.d("openGLViewModel.coordinates.collect LineState.Line")
+                            (gLView as LineGLSurfaceView).drawLine(false)
+                        }
+                        is LineState.NewLine -> {
+                            DEVLogger.d("openGLViewModel.coordinates.collect LineState.NewLine")
+                            (gLView as LineGLSurfaceView).drawLine(true)
+                        }
+                    }
                 }
             }
         }

@@ -1,22 +1,12 @@
 package com.example.noteapp.view_model
 
 import android.app.Application
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.noteapp.data.successOr
-import com.example.noteapp.domain.model.Note
-import com.example.noteapp.domain.model.Notes
-import com.example.noteapp.domain.model.Notes.Companion.toNotes
-import com.example.noteapp.domain.repository.NoteRepository
-import com.example.noteapp.util.ErrorMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import java.util.*
-import com.example.noteapp.data.Result
 import com.example.noteapp.util.DEVLogger
-import kotlin.math.sqrt
+import com.example.noteapp.util.print
 
 class OpenGLViewModel(
     application: Application,
@@ -25,12 +15,29 @@ class OpenGLViewModel(
     var winWidth = 0
     var winHeight = 0
 
-    val coordinates: MutableStateFlow<FloatArray> = MutableStateFlow(floatArrayOf())
+    private val _lineState: MutableStateFlow<LineState> = MutableStateFlow(LineState.None(true))
+    val lineState: StateFlow<LineState> = _lineState
+//    private val _lines: MutableStateFlow<MutableList<FloatArray>> = MutableStateFlow(mutableListOf())
+//    val lines: StateFlow<List<FloatArray>> = _lines
 
-    fun updateCoordinates(coordinates: FloatArray) {
-        var tempCoordinates = this.coordinates.value
-        tempCoordinates = tempCoordinates.plus(convertCoordinate(coordinates))
-        this.coordinates.value = tempCoordinates
+    var a = 0
+
+    fun updateLines(tempPoint: FloatArray, isStart: Boolean) = viewModelScope.launch {
+        val lines = lineState.value.lines as MutableList
+        if (isStart) {
+            DEVLogger.d("updateLines $isStart")
+            logArr("tempPoint", tempPoint)
+            for(line: FloatArray in lines)
+                line.print("$a line")
+            a ++
+            lines.add(convertCoordinate(tempPoint))
+            _lineState.value = LineState.NewLine(lines)
+        } else {
+            var tempLine = lines[lines.size - 1]
+            tempLine = tempLine.plus(convertCoordinate(tempPoint))
+            lines[lines.size - 1] = tempLine
+            _lineState.value = LineState.Line(lines)
+        }
     }
 
     fun setWH(width: Int, height: Int) {
@@ -57,4 +64,10 @@ class OpenGLViewModel(
 
 
 
+}
+
+sealed class LineState(open val lines: List<FloatArray>) {
+    data class NewLine(override val lines: List<FloatArray>): LineState(lines)
+    data class Line(override val lines: List<FloatArray>): LineState(lines)
+    data class None(val isFirst: Boolean): LineState(lines = mutableListOf())
 }

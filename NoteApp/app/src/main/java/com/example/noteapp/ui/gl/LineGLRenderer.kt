@@ -7,12 +7,13 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import com.example.noteapp.util.DEVLogger
+import com.example.noteapp.view_model.LineState
 import com.example.noteapp.view_model.OpenGLViewModel
 import kotlin.math.sqrt
 
-class PencilGLRenderer : GLSurfaceView.Renderer {
+class LineGLRenderer : GLSurfaceView.Renderer {
 
-    private lateinit var mPencil: Pencil
+    private lateinit var mLine: Line
     private var viewModel: OpenGLViewModel? = null
     fun setViewModel(viewModel: OpenGLViewModel) {
         this.viewModel = viewModel
@@ -33,7 +34,7 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // initialize a pencil
-        mPencil = Pencil()
+        mLine = Line()
 
         // Set the background frame color
         GLES20.glClearColor(0.1f, 0.5f, 0.5f, 1.0f)
@@ -50,6 +51,35 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
 //        viewModel?.lines?.let { mPencil.draw(it.value, vPMatrix) }
+
+        viewModel?.lineState?.let { lineState ->
+            val tempLineState = lineState.value
+            val lines = tempLineState.lines
+            when (tempLineState) {
+                is LineState.Line -> {
+                    mLine.draw(lines[lines.size - 1], vPMatrix)
+                }
+                is LineState.NewLine -> {
+//                    mLine = Line()
+                    mLine.draw(lines[lines.size - 1], vPMatrix)
+//                    isNewLine = false
+                }
+            }
+        }
+
+//        viewModel?.lines?.let { lines ->
+//            DEVLogger.d("viewModel?.lines?.let")
+//            if (isNewLine && (lines.value.size >= 1)) {
+//                DEVLogger.d("viewModel?.lines?.let 1")
+//                mLine = Line()
+//                mLine.draw(lines.value[lines.value.size - 1], vPMatrix)
+//                isNewLine = false
+//            }
+//            if (!isNewLine) {
+//                DEVLogger.d("viewModel?.lines?.let 2")
+//                mLine.draw(lines.value[lines.value.size - 1], vPMatrix)
+//            }
+//        }
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
@@ -60,6 +90,12 @@ class PencilGLRenderer : GLSurfaceView.Renderer {
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+    }
+
+    var isNewLine = true
+
+    fun setIsNewLine() {
+        isNewLine = true
     }
 
 }
