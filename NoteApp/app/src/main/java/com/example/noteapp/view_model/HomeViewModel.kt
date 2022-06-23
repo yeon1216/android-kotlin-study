@@ -1,6 +1,7 @@
 package com.example.noteapp.view_model
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.noteapp.data.successOr
@@ -115,6 +116,14 @@ class HomeViewModel(
         }
     }
 
+    fun selectImg(selectedImgUri: Uri) {
+        DEVLogger.d("selectImg selectedImgUri : $selectedImgUri")
+        viewModelState.update {
+            it.copy(selectedImgUri = selectedImgUri)
+
+        }
+    }
+
 }
 
 private data class HomeViewModelState(
@@ -123,7 +132,8 @@ private data class HomeViewModelState(
     val isNoteOpen: Boolean = false,
     val isLoading: Boolean = false,
     val errorMessage: ErrorMessage? = null,
-    val isWriteOpen: Boolean = false
+    val isWriteOpen: Boolean = false,
+    val selectedImgUri: Uri? = null
 ) {
 
     fun toUiState(): HomeUiState =
@@ -131,7 +141,8 @@ private data class HomeViewModelState(
             HomeUiState.NoNotes(
                 isLoading = isLoading,
                 errorMessage = errorMessage ?: ErrorMessage(0,""),
-                isWriteOpen = isWriteOpen
+                isWriteOpen = isWriteOpen,
+                selectedImgUri = selectedImgUri
             )
         } else {
             HomeUiState.HasNotes(
@@ -145,7 +156,8 @@ private data class HomeViewModelState(
                 isNoteOpen = isNoteOpen,
                 isLoading = isLoading,
                 errorMessage = errorMessage ?: ErrorMessage(0,""),
-                isWriteOpen = isWriteOpen
+                isWriteOpen = isWriteOpen,
+                selectedImgUri = selectedImgUri
             )
         }
 }
@@ -155,11 +167,13 @@ sealed interface HomeUiState {
     val isLoading: Boolean
     val errorMessage: ErrorMessage
     val isWriteOpen: Boolean
+    val selectedImgUri: Uri?
 
     data class NoNotes(
         override val isLoading: Boolean,
         override val errorMessage: ErrorMessage,
-        override val isWriteOpen: Boolean
+        override val isWriteOpen: Boolean,
+        override val selectedImgUri: Uri?
     ): HomeUiState
 
     data class HasNotes(
@@ -168,7 +182,8 @@ sealed interface HomeUiState {
         val isNoteOpen: Boolean,
         override val isLoading: Boolean,
         override val errorMessage: ErrorMessage,
-        override val isWriteOpen: Boolean
+        override val isWriteOpen: Boolean,
+        override val selectedImgUri: Uri?
     ): HomeUiState
 
 }

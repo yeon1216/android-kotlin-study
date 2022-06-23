@@ -1,5 +1,6 @@
 package com.example.noteapp.ui.home
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
@@ -25,7 +26,8 @@ fun HomeRoute(
         },
         onInteractWithNoteDetail = { noteId -> homeViewModel.interactWithNoteDetail(noteId) },
         onInteractWithNoteList = { homeViewModel.interactWithNoteList() },
-        onErrorDismiss = { errorId -> homeViewModel.errorShown(errorId) }
+        onErrorDismiss = { errorId -> homeViewModel.errorShown(errorId) },
+        onSelectedImg = { selectedImgUri -> homeViewModel.selectImg(selectedImgUri) }
     )
 
 }
@@ -37,7 +39,8 @@ fun HomeRoute(
     onInteractWithNoteWrite: () -> Unit,
     onInteractWithNoteDetail: (noteId: Int) -> Unit,
     onInteractWithNoteList: () -> Unit,
-    onErrorDismiss: (Long) -> Unit
+    onErrorDismiss: (Long) -> Unit,
+    onSelectedImg: (selectedImgUri: Uri) -> Unit
 ) {
 
     val scaffoldState = rememberScaffoldState()
@@ -62,7 +65,9 @@ fun HomeRoute(
         }
         HomeScreenType.NoteWrite -> {
             WriteScreen(
-                onClickWriteBtn = onClickWriteBtn
+                onClickWriteBtn = onClickWriteBtn,
+                onSelectedImg = onSelectedImg,
+                selectedImgUri = homeUiState.selectedImgUri
             )
             BackHandler {
                 onInteractWithNoteList()
